@@ -1,6 +1,6 @@
 # flutter_notification_linq
 
-A new Flutter project.
+监听ios remote notification点击事件 （专用）
 
 ## Getting Started
 
@@ -12,4 +12,5 @@ Android and/or iOS.
 For help getting started with Flutter development, view the
 [online documentation](https://flutter.dev/docs), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
+
 
