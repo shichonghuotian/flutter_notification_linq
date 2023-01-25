@@ -7,8 +7,13 @@ class FlutterNotificationLinq {
     return FlutterNotificationLinqPlatform.instance.getPlatformVersion();
   }
 
+  Future<LinqRemoteMessage?> getInitialMessage() async {
 
-  static Stream<LinqRemoteMessage> get onMessageOpenedApp =>
+    return FlutterNotificationLinqPlatform.instance.getInitialMessage();
+
+  }
+
+    static Stream<LinqRemoteMessage> get onMessageOpenedApp =>
       FlutterNotificationLinqPlatform.onMessageOpenedApp.stream;
 
 }
