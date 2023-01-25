@@ -77,7 +77,7 @@ NSString *const kChannelName = @"flutter_notification_linq";
 - (void)handleMethodCall:(FlutterMethodCall*)call result:(FlutterResult)result {
   if ([@"getPlatformVersion" isEqualToString:call.method]) {
     result([@"iOS " stringByAppendingString:[[UIDevice currentDevice] systemVersion]]);
-  } else if ([@"Messaging#getInitialMessage" isEqualToString:call.method]) {
+  } else if ([@"flutter_notification_linq#getInitialMessage" isEqualToString:call.method]) {
 //      _initialNotificationResult = methodCallResult;
       [self initialNotificationCallback:result];
       
@@ -191,7 +191,7 @@ NSString *const kChannelName = @"flutter_notification_linq";
       ![_initialNoticationID isEqualToString:_notificationOpenedAppID]) {
     NSDictionary *notificationDict =
         [FlutterNotificationLinqPlugin remoteMessageUserInfoToDict:remoteNotification];
-    [_channel invokeMethod:@"Messaging#onMessageOpenedApp" arguments:notificationDict];
+    [_channel invokeMethod:@"flutter_notification_linq#onMessageOpenedApp" arguments:notificationDict];
   }else {
       return;
   }

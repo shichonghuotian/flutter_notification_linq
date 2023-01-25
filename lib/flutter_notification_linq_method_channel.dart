@@ -15,7 +15,7 @@ class MethodChannelFlutterNotificationLinq extends FlutterNotificationLinqPlatfo
     channel.setMethodCallHandler((MethodCall call) async {
       switch (call.method) {
 
-        case 'Messaging#onMessageOpenedApp':
+        case 'flutter_notification_linq#onMessageOpenedApp':
           Map<String, dynamic> messageMap =
           Map<String, dynamic>.from(call.arguments);
           FlutterNotificationLinqPlatform.onMessageOpenedApp
@@ -43,9 +43,7 @@ class MethodChannelFlutterNotificationLinq extends FlutterNotificationLinqPlatfo
   Future<LinqRemoteMessage?> getInitialMessage() async {
     try {
       Map<String, dynamic>? remoteMessageMap = await channel
-          .invokeMapMethod<String, dynamic>('Messaging#getInitialMessage', {
-        'appName': 'linq',
-      });
+          .invokeMapMethod<String, dynamic>('flutter_notification_linq#getInitialMessage');
 
       if (remoteMessageMap == null) {
         return null;
