@@ -3,7 +3,7 @@
 
 
 NSString *const kChannelName = @"flutter_notification_linq";
-NSString *const kMessagingPresentationOptionsUserDefaults =
+NSString *const kMessagingPresentationOptionsUserDefaults2 =
     @"flutter_firebase_messaging_presentation_options";
 @implementation FlutterNotificationLinqPlugin {
     
@@ -63,10 +63,9 @@ NSString *const kMessagingPresentationOptionsUserDefaults =
     
     
   [registrar addMethodCallDelegate:instance channel:channel];
-    
-#if !TARGET_OS_OSX
+
   [registrar publish:instance];  // iOS only supported
-#endif
+
 
 }
 
@@ -187,7 +186,7 @@ NSString *const kMessagingPresentationOptionsUserDefaults =
   } else {
     UNNotificationPresentationOptions presentationOptions = UNNotificationPresentationOptionNone;
     NSDictionary *persistedOptions = [[NSUserDefaults standardUserDefaults]
-        dictionaryForKey:kMessagingPresentationOptionsUserDefaults];
+        dictionaryForKey:kMessagingPresentationOptionsUserDefaults2];
     if (persistedOptions != nil) {
       if ([persistedOptions[@"alert"] isEqual:@(YES)]) {
         presentationOptions |= UNNotificationPresentationOptionAlert;

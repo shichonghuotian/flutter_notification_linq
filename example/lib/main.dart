@@ -3,8 +3,17 @@ import 'dart:async';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_notification_linq/flutter_notification_linq.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
+import 'package:flutter_notification_linq/src/linq_remote_message.dart';
 
-void main() {
+void main() async{
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    // name: 'linq-pros',
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(const MyApp());
 }
 
@@ -23,12 +32,40 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     initPlatformState();
+    FirebaseMessaging.instance.onTokenRefresh.listen((fcmToken) {
+      print("fcmtoken update: $fcmToken");
+    }).onError((err) {
+      // Error getting token.
+    });
+    FirebaseMessaging.onMessageOpenedApp.listen((m) {
+
+      print(m);
+    });
 
     FlutterNotificationLinq.onMessageOpenedApp.listen((message) {
 
       print(message);
     });
+    uploadFcmToken();
+
   }
+  uploadFcmToken() async {
+    final fcmToken = await FirebaseMessaging.instance.getToken();
+    print("fcmtoken upload: $fcmToken");
+
+    LinqRemoteMessage? initialMessage =
+    await FlutterNotificationLinq.getInitialMessage();
+
+    // If the message also contains a data property with a "type" of "chat",
+    // navigate to a chat screen
+    if (initialMessage != null) {
+      print(initialMessage);
+      // _handleMessage2(initialMessage);
+    }
+
+  }
+
+
 
   // Platform messages are asynchronous, so we initialize in an async method.
   Future<void> initPlatformState() async {
