@@ -3,7 +3,8 @@
 
 
 NSString *const kChannelName = @"flutter_notification_linq";
-
+NSString *const kMessagingPresentationOptionsUserDefaults =
+    @"flutter_firebase_messaging_presentation_options";
 @implementation FlutterNotificationLinqPlugin {
     
     FlutterMethodChannel *_channel;
@@ -19,17 +20,12 @@ NSString *const kChannelName = @"flutter_notification_linq";
     NSString *_initialNoticationID;
     NSString *_notificationOpenedAppID;
 
-  #ifdef __FF_NOTIFICATIONS_SUPPORTED_PLATFORM
-    API_AVAILABLE(ios(10), macosx(10.14))
     __weak id<UNUserNotificationCenterDelegate> _originalNotificationCenterDelegate;
-    API_AVAILABLE(ios(10), macosx(10.14))
     struct {
       unsigned int willPresentNotification : 1;
       unsigned int didReceiveNotificationResponse : 1;
       unsigned int openSettingsForNotification : 1;
     } _originalNotificationCenterDelegateRespondsTo;
-    
-  #endif
 }
 
 
@@ -131,20 +127,20 @@ NSString *const kChannelName = @"flutter_notification_linq";
           }
     #endif
 
-//          if (shouldReplaceDelegate) {
-//            _originalNotificationCenterDelegate = notificationCenter.delegate;
-//            _originalNotificationCenterDelegateRespondsTo.openSettingsForNotification =
-//                (unsigned int)[_originalNotificationCenterDelegate
-//                    respondsToSelector:@selector(userNotificationCenter:openSettingsForNotification:)];
-//            _originalNotificationCenterDelegateRespondsTo.willPresentNotification =
-//                (unsigned int)[_originalNotificationCenterDelegate
-//                    respondsToSelector:@selector(userNotificationCenter:
-//                                                willPresentNotification:withCompletionHandler:)];
-//            _originalNotificationCenterDelegateRespondsTo.didReceiveNotificationResponse =
-//                (unsigned int)[_originalNotificationCenterDelegate
-//                    respondsToSelector:@selector(userNotificationCenter:
-//                                           didReceiveNotificationResponse:withCompletionHandler:)];
-//          }
+          if (shouldReplaceDelegate) {
+            _originalNotificationCenterDelegate = notificationCenter.delegate;
+            _originalNotificationCenterDelegateRespondsTo.openSettingsForNotification =
+                (unsigned int)[_originalNotificationCenterDelegate
+                    respondsToSelector:@selector(userNotificationCenter:openSettingsForNotification:)];
+            _originalNotificationCenterDelegateRespondsTo.willPresentNotification =
+                (unsigned int)[_originalNotificationCenterDelegate
+                    respondsToSelector:@selector(userNotificationCenter:
+                                                willPresentNotification:withCompletionHandler:)];
+            _originalNotificationCenterDelegateRespondsTo.didReceiveNotificationResponse =
+                (unsigned int)[_originalNotificationCenterDelegate
+                    respondsToSelector:@selector(userNotificationCenter:
+                                           didReceiveNotificationResponse:withCompletionHandler:)];
+          }
         }
 
         if (shouldReplaceDelegate) {
@@ -176,6 +172,37 @@ NSString *const kChannelName = @"flutter_notification_linq";
       _initialNotification = nil;
   }
 }
+- (void)userNotificationCenter:(UNUserNotificationCenter *)center
+       willPresentNotification:(UNNotification *)notification
+         withCompletionHandler:
+             (void (^)(UNNotificationPresentationOptions options))completionHandler
+    API_AVAILABLE(macos(10.14), ios(10.0)) {
+
+  // Forward on to any other delegates amd allow them to control presentation behavior.
+  if (_originalNotificationCenterDelegate != nil &&
+      _originalNotificationCenterDelegateRespondsTo.willPresentNotification) {
+    [_originalNotificationCenterDelegate userNotificationCenter:center
+                                        willPresentNotification:notification
+                                          withCompletionHandler:completionHandler];
+  } else {
+    UNNotificationPresentationOptions presentationOptions = UNNotificationPresentationOptionNone;
+    NSDictionary *persistedOptions = [[NSUserDefaults standardUserDefaults]
+        dictionaryForKey:kMessagingPresentationOptionsUserDefaults];
+    if (persistedOptions != nil) {
+      if ([persistedOptions[@"alert"] isEqual:@(YES)]) {
+        presentationOptions |= UNNotificationPresentationOptionAlert;
+      }
+      if ([persistedOptions[@"badge"] isEqual:@(YES)]) {
+        presentationOptions |= UNNotificationPresentationOptionBadge;
+      }
+      if ([persistedOptions[@"sound"] isEqual:@(YES)]) {
+        presentationOptions |= UNNotificationPresentationOptionSound;
+      }
+    }
+    completionHandler(presentationOptions);
+  }
+}
+
 
 
 // Called when a user interacts with a notification.
@@ -192,19 +219,28 @@ NSString *const kChannelName = @"flutter_notification_linq";
     NSDictionary *notificationDict =
         [FlutterNotificationLinqPlugin remoteMessageUserInfoToDict:remoteNotification];
     [_channel invokeMethod:@"flutter_notification_linq#onMessageOpenedApp" arguments:notificationDict];
-  }else {
-      return;
   }
 
   // Forward on to any other delegates.
-//  if (_originalNotificationCenterDelegate != nil &&
-//      _originalNotificationCenterDelegateRespondsTo.didReceiveNotificationResponse) {
-//    [_originalNotificationCenterDelegate userNotificationCenter:center
-//                                 didReceiveNotificationResponse:response
-//                                          withCompletionHandler:completionHandler];
-//  } else {
+  if (_originalNotificationCenterDelegate != nil &&
+      _originalNotificationCenterDelegateRespondsTo.didReceiveNotificationResponse) {
+    [_originalNotificationCenterDelegate userNotificationCenter:center
+                                 didReceiveNotificationResponse:response
+                                          withCompletionHandler:completionHandler];
+  } else {
     completionHandler();
-//  }
+  }
+}
+
+- (void)userNotificationCenter:(UNUserNotificationCenter *)center
+    openSettingsForNotification:(nullable UNNotification *)notification
+    API_AVAILABLE(macos(10.14), ios(10.0)) {
+  // Forward on to any other delegates.
+  if (_originalNotificationCenterDelegate != nil &&
+      _originalNotificationCenterDelegateRespondsTo.openSettingsForNotification) {
+    [_originalNotificationCenterDelegate userNotificationCenter:center
+                                    openSettingsForNotification:notification];
+  }
 }
 
 
