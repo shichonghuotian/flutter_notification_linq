@@ -40,8 +40,10 @@ abstract class FlutterNotificationLinqPlatform extends PlatformInterface {
   /// If your app is opened via a notification whilst the app is terminated,
   /// see [getInitialMessage].
   // ignore: close_sinks, never closed
-  static final StreamController<LinqRemoteMessage> onMessageOpenedApp =
-  StreamController<LinqRemoteMessage>.broadcast();
+  StreamController<LinqRemoteMessage> getOnMessageOpenedApp() {
+    throw UnimplementedError('getOnMessageOpenedApp() is not implemented');
+
+  }
 
 
   /// If the application has been opened from a terminated state via a [RemoteMessage]

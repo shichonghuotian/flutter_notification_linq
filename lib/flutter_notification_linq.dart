@@ -14,6 +14,6 @@ class FlutterNotificationLinq {
   }
 
     static Stream<LinqRemoteMessage> get onMessageOpenedApp =>
-      FlutterNotificationLinqPlatform.onMessageOpenedApp.stream;
+      FlutterNotificationLinqPlatform.instance.getOnMessageOpenedApp().stream;
 
 }
