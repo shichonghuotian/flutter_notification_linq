@@ -13,6 +13,7 @@ class MethodChannelFlutterNotificationLinq extends FlutterNotificationLinqPlatfo
      {
     if (_initialized) return;
     channel.setMethodCallHandler((MethodCall call) async {
+      print('setMethodCallHandler: ${call}');
       switch (call.method) {
 
         case 'flutter_notification_linq#onMessageOpenedApp':
