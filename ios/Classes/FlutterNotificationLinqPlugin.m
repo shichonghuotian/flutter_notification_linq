@@ -169,6 +169,8 @@ NSString *const kMessagingPresentationOptionsUserDefaults2 =
       
       result(_initialNotification);
       _initialNotification = nil;
+  }else {
+    result(nil);
   }
 }
 - (void)userNotificationCenter:(UNUserNotificationCenter *)center

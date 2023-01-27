@@ -31,7 +31,7 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    initPlatformState();
+    // initPlatformState();
     // FirebaseMessaging.instance.onTokenRefresh.listen((fcmToken) {
     //   print("fcmtoken update: $fcmToken");
     // }).onError((err) {
@@ -42,12 +42,33 @@ class _MyAppState extends State<MyApp> {
     //   print(m);
     // });
 
+
+    // uploadFcmToken();
+
+    initLinq();
+
+  }
+
+  initLinq() async{
+    setState(() {
+      _platformVersion =  "start";
+    });
+    LinqRemoteMessage? initialMessage =
+        await FlutterNotificationLinq.getInitialMessage();
+
+
+    print('initialMessage: ${initialMessage}');
+
+    setState(() {
+      _platformVersion = initialMessage?.toString() ?? "空";
+    });
     FlutterNotificationLinq.onMessageOpenedApp.listen((message) {
 
       print(message);
+      setState(() {
+        _platformVersion = message?.toString() ?? "空";
+      });
     });
-    // uploadFcmToken();
-
   }
   // uploadFcmToken() async {
   //   final fcmToken = await FirebaseMessaging.instance.getToken();
@@ -69,24 +90,24 @@ class _MyAppState extends State<MyApp> {
 
   // Platform messages are asynchronous, so we initialize in an async method.
   Future<void> initPlatformState() async {
-    String platformVersion;
-    // Platform messages may fail, so we use a try/catch PlatformException.
-    // We also handle the message potentially returning null.
-    try {
-      platformVersion =
-          await _flutterNotificationLinqPlugin.getPlatformVersion() ?? 'Unknown platform version';
-    } on PlatformException {
-      platformVersion = 'Failed to get platform version.';
-    }
-
-    // If the widget was removed from the tree while the asynchronous platform
-    // message was in flight, we want to discard the reply rather than calling
-    // setState to update our non-existent appearance.
-    if (!mounted) return;
-
-    setState(() {
-      _platformVersion = platformVersion;
-    });
+    // String platformVersion;
+    // // Platform messages may fail, so we use a try/catch PlatformException.
+    // // We also handle the message potentially returning null.
+    // try {
+    //   platformVersion =
+    //       await _flutterNotificationLinqPlugin.getPlatformVersion() ?? 'Unknown platform version';
+    // } on PlatformException {
+    //   platformVersion = 'Failed to get platform version.';
+    // }
+    //
+    // // If the widget was removed from the tree while the asynchronous platform
+    // // message was in flight, we want to discard the reply rather than calling
+    // // setState to update our non-existent appearance.
+    // if (!mounted) return;
+    //
+    // setState(() {
+    //   _platformVersion = platformVersion;
+    // });
   }
 
   @override
